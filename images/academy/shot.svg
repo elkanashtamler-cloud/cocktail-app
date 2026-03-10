@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">
+  <defs>
+    <linearGradient id="glassShot" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3a3a3a;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#e8e8e8;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#3a3a3a;stop-opacity:0.9"/>
+    </linearGradient>
+    <linearGradient id="rimShot" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4af37"/>
+      <stop offset="100%" style="stop-color:#a68b28"/>
+    </linearGradient>
+  </defs>
+  <!-- Shot glass - tapered -->
+  <path d="M 35 25 L 42 95 L 58 95 L 65 25 Z" fill="url(#glassShot)" stroke="#d4af37" stroke-width="1.5"/>
+  <ellipse cx="50" cy="25" rx="14" ry="4" fill="url(#rimShot)"/>
+  <ellipse cx="50" cy="95" rx="10" ry="2" fill="#2d2d2d"/>
+</svg>

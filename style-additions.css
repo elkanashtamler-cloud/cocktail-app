@@ -1,0 +1,40 @@
+/* ===== UI Polish Additions - Add these to style.css ===== */
+
+/* 1. Favorites / My Cocktails - Fix huge images */
+.favorite-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.favorite-item-img,
+.my-cocktail-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+/* 2. Premium Close Button for AI */
+.ai-assistant-title { display: flex; align-items: center; }
+.ai-avatar { font-size: 1.2rem; margin-right: 6px; }
+.ai-assistant-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: 0;
+}
+.ai-assistant-close:hover {
+    background: var(--color-gold);
+    color: #000;
+    border-color: var(--color-gold);
+}

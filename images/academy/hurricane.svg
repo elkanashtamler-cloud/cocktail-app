@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 200">
+  <defs>
+    <linearGradient id="glassHurricane" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3a3a3a;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#e8e8e8;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#3a3a3a;stop-opacity:0.9"/>
+    </linearGradient>
+    <linearGradient id="rimHurricane" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4af37"/>
+      <stop offset="100%" style="stop-color:#a68b28"/>
+    </linearGradient>
+  </defs>
+  <!-- Hurricane - curved tulip shape -->
+  <path d="M 40 20 Q 65 5 90 20 L 95 60 Q 65 85 35 60 Z" fill="url(#glassHurricane)" stroke="#d4af37" stroke-width="1.5"/>
+  <path d="M 35 60 Q 65 90 95 60 L 98 175 Q 65 195 32 175 Z" fill="url(#glassHurricane)" stroke="#d4af37" stroke-width="1.5"/>
+  <ellipse cx="65" cy="20" rx="25" ry="6" fill="url(#rimHurricane)"/>
+  <ellipse cx="65" cy="175" rx="30" ry="4" fill="#2d2d2d"/>
+</svg>

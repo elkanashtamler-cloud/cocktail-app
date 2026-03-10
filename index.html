@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Bar Manager - Cocktails, Analytics & More</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+        <div class="nav-left">
+            <div id="weatherWidget" class="weather-widget weather-widget-nav" aria-label="Weather-based drink recommendations">
+                <span id="weatherIcon" class="weather-icon">&#127777;</span>
+                <span id="weatherTemp" class="weather-temp">--°C</span>
+                <span id="weatherRec" class="weather-rec">Loading...</span>
+            </div>
+        </div>
+        <div class="nav-icons">
+            <a href="#" class="nav-icon-link" data-action="saved-custom" title="Saved & Custom">
+                <span class="nav-icon">❤️</span>
+                <span class="nav-icon-label">Saved & Custom</span>
+            </a>
+            <a href="#" class="nav-icon-link" data-action="inventory" title="My Inventory">
+                <span class="nav-icon">📦</span>
+                <span class="nav-icon-label">My Inventory</span>
+            </a>
+            <a href="#" class="nav-icon-link" data-action="party-planner" title="Party Planner">
+                <span class="nav-icon">🥂</span>
+                <span class="nav-icon-label">Party</span>
+            </a>
+            <a href="#" class="nav-icon-link" data-action="safe-drive" title="Safe Drive Calculator">
+                <span class="nav-icon">🚗</span>
+                <span class="nav-icon-label">Safe Drive</span>
+            </a>
+            <a href="#" class="nav-icon-link" data-action="stats" title="Analytics Dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-icon-label">Stats</span>
+            </a>
+            <a href="#" class="nav-icon-link" data-action="map" title="Happy Hour Map">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-icon-label">Map</span>
+            </a>
+            <a href="#" class="nav-icon-link" data-action="academy" title="Mixology Academy">
+                <span class="nav-icon">📚</span>
+                <span class="nav-icon-label">Academy</span>
+            </a>
+        </div>
+        <div class="nav-right"></div>
+    </nav>
+    <button id="personalDetailsBtn" class="btn-personal" aria-label="View personal details">Personal</button>
+
+    <div class="container" id="main-content">
+        <header>
+            <div class="header-top">
+                <div>
+                    <h1>Pro Bar Manager</h1>
+                    <p class="subtitle">Discover your perfect drink</p>
+                </div>
+            </div>
+            <button id="surpriseBtn" class="btn-surprise" aria-label="Get a random cocktail surprise">Surprise Me</button>
+        </header>
+
+        <div class="controls" id="search-section">
+            <div class="search-section">
+                <label for="ingredientInput" class="visually-hidden">Search by ingredient</label>
+                <input type="text" id="ingredientInput" placeholder="Enter an ingredient (e.g., Gin, Vodka, Lemon)" class="search-input" aria-label="Search cocktails by ingredient name" autocomplete="off">
+                <button id="searchBtn" class="btn btn-primary" aria-label="Search for cocktails">Search</button>
+            </div>
+            <div id="learnMoreContainer" class="learn-more-container"></div>
+        </div>
+
+        <div id="results" class="results-grid"></div>
+
+        <div id="cocktailModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="cocktailModalTitle" aria-describedby="modalBody">
+            <div class="modal-content modal-content-cocktail">
+                <button type="button" class="close" aria-label="Close cocktail details">&times;</button>
+                <div id="modalBody"></div>
+                <div id="cocktailModalAddToParty" class="add-to-party-wrap"></div>
+            </div>
+        </div>
+
+        <div id="partyPlannerModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="partyPlannerModalTitle">
+            <div class="modal-content modal-content-party">
+                <button type="button" class="close" aria-label="Close party planner">&times;</button>
+                <div id="partyPlannerBody">
+                    <h2 id="partyPlannerModalTitle">Party Planner</h2>
+                    <p class="party-planner-hint">Add the cocktails you want to make at your party. Ask the AI for suggestions and click + to add them. We'll calculate the total ingredients needed.</p>
+                    <div id="partyCocktailsList" class="party-cocktails-list" role="list"></div>
+                    <p class="party-planner-empty" id="partyPlannerEmpty">No cocktails yet. Search for cocktails and click "Add to Party" on each one.</p>
+                    <div class="party-planner-controls">
+                        <label for="partyGuestsInput" class="party-planner-label">Number of Guests</label>
+                        <input type="number" id="partyGuestsInput" class="party-guests-input" min="1" max="999" value="1" aria-label="Number of guests">
+                        <button type="button" id="partyCalculateBtn" class="btn btn-primary" aria-label="Calculate total ingredients">Calculate ingredients</button>
+                    </div>
+                    <div id="partyIngredientsList" class="party-ingredients-list" role="region" aria-label="Total ingredients for party"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bacModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="bacModalTitle">
+            <div class="modal-content modal-content-bac">
+                <button type="button" class="close" aria-label="Close Safe Drive calculator">&times;</button>
+                <h2 id="bacModalTitle">Safe Drive Calculator</h2>
+                <form id="bacForm" class="bac-form">
+                    <div class="bac-field">
+                        <label for="bacGender">Gender</label>
+                        <select id="bacGender" aria-label="Gender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div class="bac-field">
+                        <label for="bacWeight">Weight (kg)</label>
+                        <input type="number" id="bacWeight" min="30" max="300" value="70" step="0.1" aria-label="Weight in kilograms">
+                    </div>
+                    <div class="bac-field">
+                        <label for="bacTime">Time Passed (hours since first drink)</label>
+                        <input type="number" id="bacTime" min="0" max="24" value="0" step="0.25" aria-label="Hours since first drink">
+                    </div>
+                    <div class="bac-field">
+                        <label>Add Drinks</label>
+                        <div class="bac-drink-btns">
+                            <button type="button" class="btn bac-drink-btn" data-type="beer" aria-label="Add beer">Beer</button>
+                            <button type="button" class="btn bac-drink-btn" data-type="wine" aria-label="Add wine">Wine</button>
+                            <button type="button" class="btn bac-drink-btn" data-type="shot" aria-label="Add shot">Shot</button>
+                        </div>
+                    </div>
+                    <div class="bac-drinks-list-wrap">
+                        <label>Your Drinks</label>
+                        <ul id="bacDrinksList" class="bac-drinks-list" role="list" aria-label="List of added drinks"></ul>
+                        <button type="button" id="bacClearDrinks" class="btn btn-secondary bac-clear-btn" aria-label="Clear all drinks">Clear All</button>
+                    </div>
+                </form>
+                <div id="bacResult" class="bac-result" aria-live="polite"></div>
+                <p class="bac-disclaimer">This calculator is for educational purposes only. Never drink and drive.</p>
+            </div>
+        </div>
+
+        <div id="personalModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="personalModalTitle">
+            <div class="modal-content">
+                <button type="button" class="close" aria-label="Close personal details">&times;</button>
+                <div id="personalModalBody">
+                    <h2 id="personalModalTitle">Personal Details</h2>
+                    <div class="personal-detail-item">
+                        <p class="personal-name">Oriel Zukerman</p>
+                        <p class="personal-id">ID: 315969162</p>
+                    </div>
+                    <hr class="personal-divider">
+                    <div class="personal-detail-item">
+                        <p class="personal-name">Elkana Shtamler</p>
+                        <p class="personal-id">ID: 209037936</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="savedCustomModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="savedCustomModalTitle">
+            <div class="modal-content modal-content-saved">
+                <button type="button" class="close" aria-label="Close Saved & Custom">&times;</button>
+                <h2 id="savedCustomModalTitle">Saved & Custom</h2>
+                <div class="saved-tabs">
+                    <button type="button" class="saved-tab active" data-tab="favorites" aria-selected="true">Favorites</button>
+                    <button type="button" class="saved-tab" data-tab="custom" aria-selected="false">My Custom Recipes</button>
+                </div>
+                <div id="savedTabFavorites" class="saved-tab-panel" role="tabpanel">
+                    <p class="saved-hint">Click the heart on any cocktail to add it here.</p>
+                    <div id="favoritesList" class="favorites-list"></div>
+                </div>
+                <div id="savedTabCustom" class="saved-tab-panel" role="tabpanel" hidden>
+                    <button type="button" id="createRecipeBtn" class="btn btn-primary saved-create-btn">Create New Recipe</button>
+                    <div id="myCocktailsList" class="favorites-list my-cocktails-list"></div>
+                    <div id="createRecipeFormWrap" class="create-recipe-form-wrap" hidden>
+                        <h3>Create New Recipe</h3>
+                        <form id="createRecipeForm" class="create-recipe-form">
+                            <label for="createRecipeName">Name</label>
+                            <input type="text" id="createRecipeName" required placeholder="e.g. My Special Cocktail" aria-label="Cocktail name">
+                            <label for="createRecipeImage">Image URL</label>
+                            <input type="url" id="createRecipeImage" placeholder="https://..." aria-label="Image URL">
+                            <label for="createRecipeIngredients">Ingredients</label>
+                            <textarea id="createRecipeIngredients" required rows="3" placeholder="Gin, Tonic, Lime, Mint" aria-label="Ingredients"></textarea>
+                            <label for="createRecipeInstructions">Instructions</label>
+                            <textarea id="createRecipeInstructions" required rows="4" placeholder="How to make it..." aria-label="Instructions"></textarea>
+                            <div class="create-recipe-form-actions">
+                                <button type="submit" class="btn btn-primary">Save Recipe</button>
+                                <button type="button" id="createRecipeCancelBtn" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="academyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="academyModalTitle">
+            <div class="modal-content modal-content-academy">
+                <button type="button" class="close" aria-label="Close academy">&times;</button>
+                <div id="academyModalBody" class="academy-body">
+                    <h2 id="academyModalTitle">Mixology Academy</h2>
+                    <p class="academy-intro">A beginner's guide to glasses and techniques.</p>
+                    <section class="academy-section">
+                        <h3>Glass Types</h3>
+                        <div class="academy-card academy-card-glass">
+                            <img src="images/academy/highball.svg" alt="Highball glass" class="academy-glass-img">
+                            <div class="academy-card-content"><h4>Highball</h4><p>Tall, narrow glass. Perfect for Gin & Tonic, Moscow Mule.</p></div>
+                        </div>
+                        <div class="academy-card academy-card-glass">
+                            <img src="images/academy/martini.svg" alt="Martini glass" class="academy-glass-img">
+                            <div class="academy-card-content"><h4>Martini (Coupe)</h4><p>Stemmed, wide shallow bowl. Used for Martinis, Manhattans.</p></div>
+                        </div>
+                        <div class="academy-card academy-card-glass">
+                            <img src="images/academy/rocks.svg" alt="Rocks glass" class="academy-glass-img">
+                            <div class="academy-card-content"><h4>Old Fashioned (Rocks)</h4><p>Short, heavy-bottomed glass. For Old Fashioned, Negroni.</p></div>
+                        </div>
+                        <div class="academy-card academy-card-glass">
+                            <img src="images/academy/hurricane.svg" alt="Hurricane glass" class="academy-glass-img">
+                            <div class="academy-card-content"><h4>Hurricane</h4><p>Tall, curved glass. Classic for tropical drinks.</p></div>
+                        </div>
+                        <div class="academy-card academy-card-glass">
+                            <img src="images/academy/shot.svg" alt="Shot glass" class="academy-glass-img">
+                            <div class="academy-card-content"><h4>Shot Glass</h4><p>Small. For straight spirits or layered shooters.</p></div>
+                        </div>
+                    </section>
+                    <section class="academy-section">
+                        <h3>Techniques</h3>
+                        <div class="academy-card academy-card-technique">
+                            <div class="academy-card-content"><h4>Shaking vs. Stirring</h4><p><strong>Shake</strong> when the drink has juice, cream, egg, or syrup. <strong>Stir</strong> for spirit-only drinks.</p>
+                            <a href="https://www.youtube.com/watch?v=rCUlj1G_vGQ" target="_blank" rel="noopener" class="academy-video-link" title="Watch: How to shake and stir cocktails">▶ Watch tutorial</a></div>
+                        </div>
+                        <div class="academy-card academy-card-technique">
+                            <div class="academy-card-content"><h4>Muddling</h4><p>Crushing herbs or fruit to release flavor. Common in Mojitos and Old Fashioneds.</p>
+                            <a href="https://www.youtube.com/watch?v=FPCu1Tg21kc" target="_blank" rel="noopener" class="academy-video-link" title="Watch: How to properly muddle for cocktails">▶ Watch tutorial</a></div>
+                        </div>
+                        <div class="academy-card academy-card-technique">
+                            <div class="academy-card-content"><h4>Building</h4><p>Adding ingredients directly into the serving glass. Typical for Highballs.</p>
+                            <a href="https://www.youtube.com/watch?v=RpS8ayaU820" target="_blank" rel="noopener" class="academy-video-link" title="Watch: How to make highballs">▶ Watch tutorial</a></div>
+                        </div>
+                        <div class="academy-card academy-card-technique">
+                            <div class="academy-card-content"><h4>Layering</h4><p>Pouring ingredients in order so they sit in layers. Use the back of a spoon.</p>
+                            <a href="https://www.youtube.com/watch?v=jkSXfnHYsWk" target="_blank" rel="noopener" class="academy-video-link" title="Watch: Layering Liquids - Cocktail Techniques">▶ Watch tutorial</a></div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <div id="statsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="statsModalTitle">
+            <div class="modal-content modal-content-stats">
+                <button type="button" class="close" aria-label="Close Stats">&times;</button>
+                <h2 id="statsModalTitle">Analytics Dashboard</h2>
+                <p class="stats-hint">Analysis of your Favorites list.</p>
+                <div class="stats-charts">
+                    <div class="stats-chart-wrap stats-polar-wrap">
+                        <h3 class="stats-polar-title">Your Favorite Ingredients</h3>
+                        <p id="statsPolarEmpty" class="stats-empty">You need to favorite some cocktails first to see your taste profile!</p>
+                        <div class="stats-polar-container">
+                            <canvas id="statsPolarChart" aria-label="Polar area chart of favorite ingredients"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="inventoryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="inventoryModalTitle">
+            <div class="modal-content modal-content-inventory">
+                <button type="button" class="close" aria-label="Close inventory">&times;</button>
+                <h2 id="inventoryModalTitle">Smart Bar Management</h2>
+                <div class="inv-tabs">
+                    <button type="button" data-inv-tab="my-bar" class="inv-tab active" aria-selected="true">My Bar</button>
+                    <button type="button" data-inv-tab="what-to-make" class="inv-tab" aria-selected="false">What Can I Make?</button>
+                    <button type="button" data-inv-tab="shopping-list" class="inv-tab" aria-selected="false">Shopping List</button>
+                </div>
+                <div id="invTabMyBar" class="inv-tab-panel" role="tabpanel">
+                    <label for="invSearch" class="visually-hidden">Search ingredients</label>
+                    <input type="text" id="invSearch" placeholder="Search ingredients..." class="search-input inv-search-input" aria-label="Search ingredients" autocomplete="off">
+                    <div id="invIngredientsGrid" class="inv-ingredients-grid"></div>
+                </div>
+                <div id="invTabWhatToMake" class="inv-tab-panel" role="tabpanel" hidden>
+                    <div id="invMatchResults" class="inv-match-results"></div>
+                </div>
+                <div id="invTabShoppingList" class="inv-tab-panel" role="tabpanel" hidden>
+                    <div id="invShoppingList" class="inv-shopping-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="mapModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="mapModalTitle">
+            <div class="modal-content modal-content-map">
+                <button type="button" class="close" aria-label="Close map">&times;</button>
+                <div id="mapModalBody">
+                    <h2 id="mapModalTitle">Happy Hour Map</h2>
+                    <p class="map-hint">Find bars and pubs near you. Click "Show bars near me" to load the map.</p>
+                    <div id="mapStatus" class="map-status"></div>
+                    <button type="button" id="mapShowLocationBtn" class="btn btn-primary" aria-label="Show bars near my location">Show bars near me</button>
+                    <div id="mapContainer" class="map-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiAssistant" class="ai-assistant" role="complementary" aria-label="Cocktail Assistant">
+        <button type="button" class="ai-assistant-mini" id="aiAssistantMini" aria-label="Open assistant" title="Chat" tabindex="0">🤖</button>
+        <div class="ai-assistant-bubble" id="bot-greeting" role="dialog">
+            <p class="ai-assistant-intro">Hi! Need help with cocktails?</p>
+            <div class="ai-assistant-btns">
+                <button type="button" class="ai-assistant-yes" id="aiAssistantYes" aria-label="Yes">Yes</button>
+                <button type="button" class="ai-assistant-later" id="aiAssistantLater" aria-label="Later">Later</button>
+            </div>
+        </div>
+        <div class="ai-assistant-chat" id="chat-window" role="dialog">
+            <div class="ai-assistant-chat-header">
+                <div class="ai-assistant-title"><span class="ai-avatar">🤖</span> Cocktail Assistant</div>
+                <button type="button" class="ai-assistant-close close-x" id="close-chat-btn" aria-label="Close chat">&times;</button>
+            </div>
+            <div class="ai-assistant-messages" id="aiAssistantMessages"></div>
+            <div class="ai-assistant-input-row">
+                <input type="text" class="ai-assistant-input" id="aiAssistantInput" placeholder="Ask Cocktail Assistant..." aria-label="Type your question">
+                <button type="button" class="ai-assistant-send" id="aiAssistantSend" aria-label="Send">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <template id="aiChatTemplate">
+        <div class="ai-chat-container">
+            <button type="button" class="ai-chat-toggle" aria-label="Toggle AI chat" aria-expanded="true">
+                <span class="ai-chat-toggle-text"><span class="ai-avatar">🤖</span> Cocktail Assistant</span>
+            </button>
+            <div class="ai-chat-panel">
+                <div class="ai-chat-messages"></div>
+                <div class="ai-chat-input-row">
+                    <textarea class="ai-chat-input" placeholder="Ask Cocktail Assistant..." aria-label="AI chat input" rows="2"></textarea>
+                    <button type="button" class="ai-chat-send btn btn-primary" aria-label="Send">Send</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="js/bundle.js"></script>
+</body>
+</html>

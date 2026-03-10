@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 140">
+  <defs>
+    <linearGradient id="glassRocks" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3a3a3a;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#e8e8e8;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#3a3a3a;stop-opacity:0.9"/>
+    </linearGradient>
+    <linearGradient id="rimRocks" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4af37"/>
+      <stop offset="100%" style="stop-color:#a68b28"/>
+    </linearGradient>
+  </defs>
+  <!-- Rocks/Old Fashioned - short with thick base -->
+  <path d="M 35 30 L 95 30 L 98 95 L 32 95 Z" fill="url(#glassRocks)" stroke="#d4af37" stroke-width="1.5"/>
+  <ellipse cx="65" cy="30" rx="28" ry="5" fill="url(#rimRocks)"/>
+  <!-- Heavy base -->
+  <path d="M 28 95 L 28 115 L 102 115 L 102 95" fill="#2d2d2d" stroke="#d4af37" stroke-width="1.5"/>
+  <rect x="28" y="95" width="74" height="20" fill="url(#glassRocks)" stroke="none"/>
+</svg>

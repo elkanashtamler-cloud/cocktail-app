@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pro Bar Manager - Cocktails, Analytics & More</title>
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="images/Gemini_Generated_Image_chteoochteoochte.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
@@ -146,12 +149,10 @@
                     <h2 id="personalModalTitle">Personal Details</h2>
                     <div class="personal-detail-item">
                         <p class="personal-name">Oriel Zukerman</p>
-                        <p class="personal-id">ID: 315969162</p>
                     </div>
                     <hr class="personal-divider">
                     <div class="personal-detail-item">
                         <p class="personal-name">Elkana Shtamler</p>
-                        <p class="personal-id">ID: 209037936</p>
                     </div>
                 </div>
             </div>
@@ -338,5 +339,15 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="js/bundle.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('./sw.js')
+                    .catch(function (err) {
+                        console.error('Service worker registration failed:', err);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

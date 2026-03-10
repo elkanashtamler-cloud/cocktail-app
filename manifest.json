@@ -1,0 +1,19 @@
+{
+  "name": "Pro Bar Manager",
+  "short_name": "Cocktail Pro",
+  "description": "Graduation project – manage your bar, discover cocktails, plan parties and get AI-powered suggestions.",
+  "start_url": "./",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a1a",
+  "theme_color": "#1a1a1a",
+  "icons": [
+    {
+      "src": "images/Gemini_Generated_Image_chteoochteoochte.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

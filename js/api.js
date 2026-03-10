@@ -7,11 +7,6 @@
 // ========== API Configuration ==========
 export const API_BASE_URL = 'https://www.thecocktaildb.com/api/json/v1/1';
 
-// Google AI Studio (Gemini) - for AI chat in modals
-export const GEMINI_API_KEY = 'AIzaSyAPyFeKZkoTAZ3nTKTZXY_SmuN-gcOWDqA';
-const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-pro'];
-const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-
 // OpenWeather - leave empty for mock
 export const OPENWEATHER_API_KEY = '';
 
@@ -263,68 +258,15 @@ export async function getExactIngredientFromList(ingredient) {
     }
 }
 
-// ========== Gemini AI ==========
+// ========== Gemini AI (disabled) ==========
 
 /**
- * Calls Gemini API for chat completion
+ * Stubbed AI function – AI assistant is disabled for security reasons.
+ * Kept only so existing calls in the UI won't break.
  */
 export async function askGemini(contextPrompt, userMessage) {
-    const apiUrl = `${GEMINI_BASE}/${GEMINI_MODELS[0]}:generateContent?key=${GEMINI_API_KEY}`;
-    const body = JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: `${contextPrompt}\n\nUser question: ${userMessage}` }] }],
-        generationConfig: { maxOutputTokens: 4096 }
-    });
-
-    const doDirect = () => fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-    const doProxy = () => fetch('https://corsproxy.io/?' + encodeURIComponent(apiUrl), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-    const doAllOrigins = async () => {
-        const r = await fetch('https://api.allorigins.win/post', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: apiUrl, method: 'POST', contentType: 'application/json', body })
-        });
-        const j = await r.json();
-        if (j.contents) return { ok: true, json: () => Promise.resolve(JSON.parse(j.contents)) };
-        return { ok: false, text: () => Promise.resolve(j.contents || j.error || 'Unknown') };
-    };
-
-    const parseResponse = async (res) => {
-        if (!res.ok) {
-            const status = res.status || '';
-            const txt = (typeof res.text === 'function') ? await res.text() : String(res.content || '');
-            if (status === 429) return { err: 'AI daily quota exceeded. Try again tomorrow or contact support.' };
-            return { err: `Server error (${status}): ${txt.slice(0, 120)}` };
-        }
-        let data;
-        try {
-            data = typeof res.json === 'function' ? await res.json() : res;
-        } catch (_) {
-            return { err: 'Invalid response from server.' };
-        }
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) return { text };
-        const errMsg = data?.error?.message || data?.promptFeedback?.blockReason || '';
-        return { err: errMsg ? 'No response received: ' + errMsg : 'No response received from the system.' };
-    };
-
-    try {
-        let res;
-        try {
-            res = await doProxy();
-        } catch (_) {
-            try {
-                res = await doAllOrigins();
-            } catch (__) {
-                res = await doDirect();
-            }
-        }
-        const out = await parseResponse(res);
-        if (out.text) return out.text;
-        return out.err;
-    } catch (e) {
-        console.error('Gemini API error:', e);
-        return 'Connection error to AI. Check internet connection and try again.';
-    }
+    console.warn('askGemini was called but AI is disabled.');
+    return 'AI assistant is currently disabled.';
 }
 
 /**

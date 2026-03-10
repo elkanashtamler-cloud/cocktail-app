@@ -300,45 +300,8 @@
         </div>
     </div>
 
-    <div id="aiAssistant" class="ai-assistant" role="complementary" aria-label="Cocktail Assistant">
-        <button type="button" class="ai-assistant-mini" id="aiAssistantMini" aria-label="Open assistant" title="Chat" tabindex="0">🤖</button>
-        <div class="ai-assistant-bubble" id="bot-greeting" role="dialog">
-            <p class="ai-assistant-intro">Hi! Need help with cocktails?</p>
-            <div class="ai-assistant-btns">
-                <button type="button" class="ai-assistant-yes" id="aiAssistantYes" aria-label="Yes">Yes</button>
-                <button type="button" class="ai-assistant-later" id="aiAssistantLater" aria-label="Later">Later</button>
-            </div>
-        </div>
-        <div class="ai-assistant-chat" id="chat-window" role="dialog">
-            <div class="ai-assistant-chat-header">
-                <div class="ai-assistant-title"><span class="ai-avatar">🤖</span> Cocktail Assistant</div>
-                <button type="button" class="ai-assistant-close close-x" id="close-chat-btn" aria-label="Close chat">&times;</button>
-            </div>
-            <div class="ai-assistant-messages" id="aiAssistantMessages"></div>
-            <div class="ai-assistant-input-row">
-                <input type="text" class="ai-assistant-input" id="aiAssistantInput" placeholder="Ask Cocktail Assistant..." aria-label="Type your question">
-                <button type="button" class="ai-assistant-send" id="aiAssistantSend" aria-label="Send">Send</button>
-            </div>
-        </div>
-    </div>
-
-    <template id="aiChatTemplate">
-        <div class="ai-chat-container">
-            <button type="button" class="ai-chat-toggle" aria-label="Toggle AI chat" aria-expanded="true">
-                <span class="ai-chat-toggle-text"><span class="ai-avatar">🤖</span> Cocktail Assistant</span>
-            </button>
-            <div class="ai-chat-panel">
-                <div class="ai-chat-messages"></div>
-                <div class="ai-chat-input-row">
-                    <textarea class="ai-chat-input" placeholder="Ask Cocktail Assistant..." aria-label="AI chat input" rows="2"></textarea>
-                    <button type="button" class="ai-chat-send btn btn-primary" aria-label="Send">Send</button>
-                </div>
-            </div>
-        </div>
-    </template>
-
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script src="js/bundle.js"></script>
+    <script type="module" src="js/main.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {

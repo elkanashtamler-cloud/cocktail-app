@@ -43,7 +43,6 @@ const closeButtons = document.querySelectorAll('.close');
 
 let mapInstance = null;
 let statsPolarChart = null;
-let lastDisplayedCocktailForAI = null;
 let mapBarsCache = [];
 let mapBarMarkers = new Map();
 
@@ -169,10 +168,6 @@ function displayCocktailDetails(cocktail, options = {}) {
         modalContent.insertBefore(backBtn, modalContent.firstChild);
     }
     modalBody.innerHTML = '';
-    if (cocktail && !cocktail.id?.toString().startsWith('my-')) {
-        lastDisplayedCocktailForAI = cocktail;
-    }
-
     const isMyCocktail = (cocktail.id && (String(cocktail.id).startsWith('my-') || String(cocktail.id).startsWith('custom-'))) || (typeof cocktail.ingredients === 'string' && typeof cocktail.instructions === 'string');
 
     if (isMyCocktail) {
@@ -495,212 +490,6 @@ function onPartyPlannerCalculate() {
     render.renderPartyPlannerModal(partyCocktailsList, partyIngredientsList, partyPlannerEmpty, partyGuestsInput, partyPlannerModal, displayCocktailDetails, onPartyPlannerCalculate);
 }
 
-// ========== AI Chat ==========
-
-function buildAIContext(contextType, catalog) {
-    const base = 'You are Oriel & Elkana\'s Assistant, a professional bartender AI in the Cocktail Pro app. Answer in a friendly, concise way. Always format clearly: use ## for main headers, ### for subheaders, • for bullet points, and **bold** for emphasis. Keep paragraphs short. ';
-    switch (contextType) {
-        case 'academy':
-            return base + 'The user is in MIXOLOGY ACADEMY - learning about glass types and techniques. Answer questions about bartending.';
-        case 'map': {
-            const bars = catalog || [];
-            const barList = bars.slice(0, 80).map(b => b.name).join(', ');
-            const formatRule = barList ? `\n\nCRITICAL: When recommending bars, you MUST choose ONLY from this exact list: ${barList}. For EACH bar you recommend, write [BAR:ExactName] on its own line.` : '';
-            return base + 'The user is viewing HAPPY HOUR MAP - finding bars/pubs nearby. Help with bar recommendations.' + formatRule;
-        }
-        case 'saved-custom': {
-            const favs = store.getFavorites().map(c => c.strDrink).join(', ') || 'none';
-            const customs = [...store.getMyCocktails().map(c => c.name), ...store.getCustomCocktails().map(c => c.strDrink || c.name)].filter(Boolean).join(', ') || 'none';
-            return base + `The user is in SAVED & CUSTOM - Favorites: ${favs}. Custom recipes: ${customs}. Help with suggestions or recipe ideas.`;
-        }
-        case 'party-planner': {
-            const catalogList = (catalog || []).slice(0, 200).map(c => c.strDrink).join(', ');
-            const formatRule = catalogList ? `\n\nIMPORTANT: When suggesting cocktails, choose ONLY from: ${catalogList}. For each suggested cocktail, write [COCKTAIL:Name] on its own line.` : '';
-            return base + `The user is in PARTY PLANNER. Party cocktails: ${store.getPartyCocktails().map(c => c.strDrink).join(', ') || 'none'}. Guests: ${partyGuestsInput?.value || 1}.${formatRule}`;
-        }
-        case 'cocktail-detail': {
-            const c = lastDisplayedCocktailForAI;
-            if (!c) return base + 'The user is viewing a cocktail. Ask them to open a cocktail first.';
-            const ing = [];
-            for (let i = 1; i <= 15; i++) {
-                const m = c[`strMeasure${i}`], ing0 = c[`strIngredient${i}`];
-                if (ing0) ing.push((m ? m.trim() + ' ' : '') + ing0.trim());
-            }
-            return base + `Current cocktail: ${c.strDrink}. Ingredients: ${ing.join(', ')}. Instructions: ${c.strInstructions || 'N/A'}. Help with variations, substitutions, or questions about this drink.`;
-        }
-        default:
-            return base + 'Answer general cocktail questions.';
-    }
-}
-
-function parseAIBarSuggestions(reply, barsList) {
-    const re = /\[BAR:([^\]]+)\]/gi;
-    const matches = [...reply.matchAll(re)];
-    const bars = [];
-    const seen = new Set();
-    for (const m of matches) {
-        const name = m[1].trim();
-        if (!name || seen.has(name.toLowerCase())) continue;
-        let found = barsList.find(b => b.name.toLowerCase() === name.toLowerCase());
-        if (!found) found = barsList.find(b => b.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(b.name.toLowerCase()));
-        if (found) { seen.add(name.toLowerCase()); bars.push(found); }
-    }
-    const text = reply.replace(re, '').replace(/\n{3,}/g, '\n\n').trim();
-    return { text, bars };
-}
-
-function parseAICocktailSuggestions(reply, catalog) {
-    const re = /\[COCKTAIL:([^\]]+)\]/gi;
-    const matches = [...reply.matchAll(re)];
-    const cocktails = [];
-    const seen = new Set();
-    for (const m of matches) {
-        const name = m[1].trim();
-        if (!name || seen.has(name.toLowerCase())) continue;
-        const found = catalog.find(c => c.strDrink.toLowerCase() === name.toLowerCase());
-        if (found) { seen.add(name.toLowerCase()); cocktails.push(found); }
-    }
-    const text = reply.replace(re, '').replace(/\n{3,}/g, '\n\n').trim();
-    return { text, cocktails };
-}
-
-function injectAIChat(modalEl, contextType) {
-    if (!modalEl || modalEl.querySelector('.ai-chat-container')) return;
-    const tpl = document.getElementById('aiChatTemplate');
-    if (!tpl) return;
-    const clone = tpl.content.cloneNode(true);
-    const container = clone.querySelector('.ai-chat-container');
-    const toggle = clone.querySelector('.ai-chat-toggle');
-    const panel = clone.querySelector('.ai-chat-panel');
-    const input = clone.querySelector('.ai-chat-input');
-    const sendBtn = clone.querySelector('.ai-chat-send');
-    const messages = clone.querySelector('.ai-chat-messages');
-
-    toggle.addEventListener('click', () => {
-        panel.hidden = !panel.hidden;
-        toggle.setAttribute('aria-expanded', String(!panel.hidden));
-        if (!panel.hidden) input.focus();
-    });
-
-    const addMessage = (text, isUser) => {
-        const div = document.createElement('div');
-        div.className = 'ai-chat-msg' + (isUser ? ' ai-chat-user' : '');
-        div.textContent = text;
-        messages.appendChild(div);
-        div.scrollIntoView({ block: 'start', behavior: 'instant' });
-    };
-
-    sendBtn.addEventListener('click', async () => {
-        const msg = input.value.trim();
-        if (!msg) return;
-        addMessage(msg, true);
-        input.value = '';
-        sendBtn.disabled = true;
-        addMessage('...', false);
-        const lastMsg = messages.lastChild;
-        let catalog = null;
-        if (contextType === 'party-planner') catalog = await api.getAICocktailCatalog();
-        if (contextType === 'map') catalog = await ensureMapWithBars();
-        const ctx = buildAIContext(contextType, catalog);
-        const reply = await api.askGemini(ctx, msg);
-        let displayText = reply;
-        if (contextType === 'party-planner' && catalog) {
-            const { text, cocktails } = parseAICocktailSuggestions(reply, catalog);
-            displayText = text || (cocktails.length ? 'Click + to add to party' : '');
-            render.renderPartyCocktailCards(cocktails, lastMsg, api.API_BASE_URL, store.toggleParty, onPartyPlannerCalculate);
-        }
-        if (contextType === 'map' && catalog && catalog.length) {
-            const { text, bars } = parseAIBarSuggestions(reply, catalog);
-            displayText = text || (bars.length ? 'Recommendations:' : '');
-        }
-        lastMsg.innerHTML = utils.formatAIReply(displayText);
-        lastMsg.classList.add('ai-msg-formatted');
-        if (contextType === 'map' && catalog && catalog.length) {
-            const { bars } = parseAIBarSuggestions(reply, catalog);
-            render.renderMapBarCards(bars, lastMsg, mapInstance, mapBarMarkers, utils.escapeHtml);
-        }
-        lastMsg.scrollIntoView({ block: 'start', behavior: 'instant' });
-        sendBtn.disabled = false;
-    });
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
-    });
-
-    const content = modalEl.querySelector('.modal-content');
-    if (content) content.appendChild(container);
-
-    if (contextType === 'party-planner') addMessage('Ask me for example: summer party cocktails, vodka drinks, classics... I\'ll pick from the site catalog. Click + to add to the list.', false);
-    if (contextType === 'map') addMessage('Ask me for example: recommend bars in the area, where to meet friends... I\'ll pick from the bars on the map. Click "Show on map" to locate.', false);
-}
-
-function setupAIChatInModals() {
-    injectAIChat(savedCustomModal, 'saved-custom');
-    injectAIChat(academyModal, 'academy');
-    injectAIChat(mapModal, 'map');
-    injectAIChat(partyPlannerModal, 'party-planner');
-    injectAIChat(cocktailModal, 'cocktail-detail');
-}
-
-function setupAIAssistant() {
-    const bubble = document.getElementById('bot-greeting');
-    const chat = document.getElementById('chat-window');
-    const miniBtn = document.getElementById('aiAssistantMini');
-    const yesBtn = document.getElementById('aiAssistantYes');
-    const laterBtn = document.getElementById('aiAssistantLater');
-    const closeBtn = document.getElementById('close-chat-btn');
-    const input = document.getElementById('aiAssistantInput');
-    const sendBtn = document.getElementById('aiAssistantSend');
-    const messages = document.getElementById('aiAssistantMessages');
-
-    if (!bubble || !chat) return;
-
-    const closeChat = () => { bubble.classList.add('hidden'); chat.classList.remove('is-open'); };
-    const openChat = () => { bubble.classList.add('hidden'); chat.classList.add('is-open'); input?.focus(); };
-    const isChatOpen = () => chat.classList.contains('is-open');
-
-    bubble.classList.remove('hidden');
-    chat.classList.remove('is-open');
-
-    yesBtn?.addEventListener('click', () => {
-        openChat();
-        const div = document.createElement('div');
-        div.className = 'ai-assistant-msg';
-        div.innerHTML = utils.formatAIReply('Great! Thanks 😊 Ask me any question about drinks, cocktails, bars...');
-        div.classList.add('ai-msg-formatted');
-        messages.appendChild(div);
-    });
-
-    laterBtn?.addEventListener('click', () => closeChat());
-    miniBtn?.addEventListener('click', () => { if (isChatOpen()) closeChat(); else openChat(); });
-    closeBtn?.addEventListener('click', (e) => { e.preventDefault(); closeChat(); });
-
-    async function sendMessage() {
-        const msg = input?.value?.trim();
-        if (!msg) return;
-        const div = document.createElement('div');
-        div.className = 'ai-assistant-msg ai-assistant-user';
-        div.innerHTML = utils.formatAIReply(msg);
-        messages.appendChild(div);
-        input.value = '';
-        sendBtn.disabled = true;
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'ai-assistant-msg';
-        loadingDiv.textContent = '...';
-        messages.appendChild(loadingDiv);
-        loadingDiv.scrollIntoView({ block: 'start', behavior: 'instant' });
-
-        const ctx = buildAIContext('', null) + ' The user is on the main page. You are Oriel & Elkana\'s Assistant. Help with general cocktail questions, recommendations, or guide them to explore the app.';
-        const reply = await api.askGemini(ctx, msg);
-        loadingDiv.innerHTML = utils.formatAIReply(reply);
-        loadingDiv.classList.add('ai-msg-formatted');
-        loadingDiv.scrollIntoView({ block: 'start', behavior: 'instant' });
-        sendBtn.disabled = false;
-    }
-
-    sendBtn?.addEventListener('click', sendMessage);
-    input?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-}
 
 // ========== Map ==========
 
@@ -1344,8 +1133,6 @@ function handleMenuAction(action) {
 // ========== DOMContentLoaded ==========
 
 document.addEventListener('DOMContentLoaded', () => {
-    setupAIChatInModals();
-    setupAIAssistant();
     setupBACCalculator();
 
     api.ensureIngredientIndex().then(() => {

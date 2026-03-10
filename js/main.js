@@ -1195,7 +1195,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     api.fetchWeatherAndRecommend();
 
-    initIngredientImage();
+    if (typeof window !== 'undefined' && typeof window.initIngredientImage === 'function') {
+        window.initIngredientImage();
+    }
     const ingredientImageModal = document.getElementById('ingredientImageModal');
     const modalsToClose = [cocktailModal, personalModal, savedCustomModal, academyModal, mapModal, partyPlannerModal, bacModal, inventoryModal];
     if (ingredientImageModal) modalsToClose.push(ingredientImageModal);
@@ -1207,8 +1209,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('click', (e) => {
-        modalsToClose.forEach(m => { if (m && e.target === m) m.style.display = 'none'; });
-        if (document.getElementById('statsModal') && e.target === document.getElementById('statsModal')) document.getElementById('statsModal').style.display = 'none';
+        modalsToClose.forEach(m => {
+            if (!m || m.style.display !== 'block') return;
+            const content = m.querySelector('.modal-content');
+            const clickedOutsideContent = content && !content.contains(e.target);
+            if (e.target === m || clickedOutsideContent) {
+                m.style.display = 'none';
+            }
+        });
+        const statsModalEl = document.getElementById('statsModal');
+        if (statsModalEl) {
+            const statsContent = statsModalEl.querySelector('.modal-content');
+            const clickedOutsideStats = statsContent && !statsContent.contains(e.target);
+            if (e.target === statsModalEl || clickedOutsideStats) {
+                statsModalEl.style.display = 'none';
+            }
+        }
     });
 
     document.addEventListener('keydown', (e) => {

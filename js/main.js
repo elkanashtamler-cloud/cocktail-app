@@ -1194,10 +1194,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     api.fetchWeatherAndRecommend();
-
-    if (typeof window !== 'undefined' && typeof window.initIngredientImage === 'function') {
-        window.initIngredientImage();
-    }
     const ingredientImageModal = document.getElementById('ingredientImageModal');
     const modalsToClose = [cocktailModal, personalModal, savedCustomModal, academyModal, mapModal, partyPlannerModal, bacModal, inventoryModal];
     if (ingredientImageModal) modalsToClose.push(ingredientImageModal);
@@ -1209,21 +1205,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('click', (e) => {
+        // Close modals only when clicking directly on the backdrop,
+        // not on any other part of the page (to avoid closing immediately on open).
         modalsToClose.forEach(m => {
-            if (!m || m.style.display !== 'block') return;
-            const content = m.querySelector('.modal-content');
-            const clickedOutsideContent = content && !content.contains(e.target);
-            if (e.target === m || clickedOutsideContent) {
+            if (m && e.target === m) {
                 m.style.display = 'none';
             }
         });
         const statsModalEl = document.getElementById('statsModal');
-        if (statsModalEl) {
-            const statsContent = statsModalEl.querySelector('.modal-content');
-            const clickedOutsideStats = statsContent && !statsContent.contains(e.target);
-            if (e.target === statsModalEl || clickedOutsideStats) {
-                statsModalEl.style.display = 'none';
-            }
+        if (statsModalEl && e.target === statsModalEl) {
+            statsModalEl.style.display = 'none';
         }
     });
 

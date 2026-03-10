@@ -62,6 +62,14 @@ body {
     gap: 16px;
 }
 
+/* Mobile nav toggle - hidden on desktop */
+.nav-toggle-checkbox {
+    display: none;
+}
+.nav-toggle-btn {
+    display: none;
+}
+
 .nav-left { display: flex; align-items: center; }
 .nav-right { min-width: 0; }
 .nav-icons {
@@ -250,7 +258,7 @@ h2 { text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); }
 }
 
 .cocktail-image-wrap { position: relative; width: 100%; height: 250px; background: var(--color-dark-bg); }
-.cocktail-image { width: 100%; height: 250px; object-fit: cover; display: block; }
+.cocktail-image { width: 100%; height: 250px; max-width: 100%; object-fit: cover; display: block; }
 
 .cocktail-favorite-btn {
     position: absolute;
@@ -368,6 +376,152 @@ h2 { text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); }
     overflow-y: auto;
     position: relative;
     padding-bottom: 24px;
+}
+
+/* ========== Responsive Layout (Mobile) ========== */
+
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+
+    .main-nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between; /* Menu left, weather right */
+        padding: 8px 12px;
+        row-gap: 8px;
+    }
+
+    /* Smaller weather widget on mobile */
+    .weather-widget {
+        padding: 4px 8px;
+        min-width: 0;
+    }
+    .weather-widget-nav {
+        gap: 4px;
+    }
+    .weather-icon {
+        font-size: 1rem;
+    }
+    .weather-temp {
+        font-size: 0.8rem;
+    }
+    .weather-rec {
+        font-size: 0.65rem;
+        margin-top: 0;
+        padding: 0;
+    }
+
+    .nav-toggle-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 12px;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 8px;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        color: var(--color-gold);
+        font-weight: 600;
+        cursor: pointer;
+        order: 1;
+        margin-left: 0;
+        margin-right: auto; /* push as far left as possible */
+    }
+
+    .nav-toggle-icon {
+        font-size: 1.2rem;
+    }
+
+    .nav-left {
+        order: 2;
+        margin-bottom: 0;
+        display: flex;
+        justify-content: flex-end; /* push weather widget to right edge on same row */
+        margin-left: auto; /* push as far right as possible */
+    }
+
+    .nav-icons {
+        order: 3;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        width: 100%;
+        display: none;
+    }
+
+    /* Show nav icons only when hamburger is open */
+    #navToggle:checked ~ .nav-icons {
+        display: flex;
+    }
+
+    .nav-icon-link {
+        flex-direction: column;
+        padding: 6px 8px;
+        min-width: 64px;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .controls {
+        margin-bottom: 16px;
+    }
+
+    .search-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-input {
+        min-width: 0;
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 12px 14px;
+    }
+
+    .btn,
+    .btn-surprise,
+    .btn-personal,
+    .inv-tab,
+    .saved-tab {
+        padding: 14px 18px;
+        font-size: 0.95rem;
+    }
+
+    .results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .cocktail-image-wrap,
+    .cocktail-image {
+        height: 220px;
+    }
+
+    .modal-content {
+        margin: 10% auto;
+        padding: 20px 16px;
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .party-mode-section,
+    .detail-section {
+        font-size: 0.95rem;
+    }
+
+    .ai-assistant-mini {
+        bottom: 16px;
+        right: 16px;
+    }
 }
 
 .close {
@@ -829,6 +983,12 @@ h2 { text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); }
     padding: 12px;
     flex-shrink: 0;
     min-width: 0;
+}
+
+/* Disable AI assistant UI completely (security / privacy choice) */
+.ai-assistant,
+.ai-chat-container {
+    display: none !important;
 }
 .ai-assistant-input {
     flex: 1;

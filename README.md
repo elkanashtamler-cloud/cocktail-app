@@ -107,4 +107,3 @@ Academy: Open Academy for quick glass & technique guides.
 👥 Authors
 Oriel Zukerman
 Elkana Shtamler
-If you have ideas, suggestions, or want to adapt this project for your own needs (different theme, additional analytics, or backend integration), feel free to fork the repository and extend it.

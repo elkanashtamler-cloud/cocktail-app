@@ -471,6 +471,11 @@ h2 { text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); }
         font-size: 1rem;
     }
 
+    /* Push header + search closer to vertical center on first load */
+    header {
+        margin-top: 12vh;
+    }
+
     .controls {
         margin-bottom: 16px;
     }

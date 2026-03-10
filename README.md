@@ -1,4 +1,5 @@
-# ![Pro Bar Manager Banner](images/banner.png)
+![Pro Bar Manager Banner](images/banner.png)
+# 🍸 Pro Bar Manager – Cocktail Explorer
 Discover, plan, and manage your perfect bar experience.  
 Search cocktails by ingredient, plan parties, track your bar inventory, and explore mixology tools – all in one responsive, installable web app.
 ---
